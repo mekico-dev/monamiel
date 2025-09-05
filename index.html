@@ -3,56 +3,96 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>モナカード 送受信ビューア（JST + 画像）</title>
+  <title>もなみえ～る</title>
   <style>
     body{background:#0b1020;color:#e5ecff;font-family:sans-serif;margin:0}
-    header{padding:12px;background:#131a2a;position:sticky;top:0;z-index:10}
-    h1{margin:0;font-size:18px}
-    input{padding:6px;border-radius:6px;border:1px solid #555}
-    button{padding:6px 10px;border-radius:6px;background:#1c253b;color:white;border:1px solid #555;cursor:pointer}
+    header{padding:12px 16px;background:#131a2a;position:sticky;top:0;z-index:10}
 
+    /* ブランド（アイコン＋テキスト） */
+    .brand{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .brand img{height:56px;width:auto;border-radius:12px}
+    .brand-text{
+      font-family:
+        "Hiragino Maru Gothic ProN",
+        "Yu Gothic UI",
+        "Yu Gothic",
+        "Meiryo",
+        "Noto Sans JP",
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+      font-weight:700;
+      font-size:26px;
+      line-height:1;
+      background:linear-gradient(90deg,#ff86d1,#9a8bff,#67d8ff);
+      -webkit-background-clip:text;
+      background-clip:text;
+      -webkit-text-fill-color:transparent;
+      color:#e5ecff;
+      white-space:nowrap;
+    }
+    .brand-sub{font-size:11px;color:#a6b0cf;letter-spacing:.12em;margin-top:2px}
+
+    input{padding:6px;border-radius:6px;border:1px solid #555;background:#0b1020;color:#e5ecff}
+    button{padding:6px 10px;border-radius:6px;background:#1c253b;color:#e5ecff;border:1px solid #555;cursor:pointer}
+
+    .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+    /* 免責 */
+    .disclaimer-link{font-size:12px;color:#6ea8ff;cursor:pointer;text-decoration:underline}
+    .disclaimer-text{display:none;font-size:12px;color:#999;line-height:1.5;margin-top:6px}
+
+    /* テーブル */
     .tablewrap{overflow-x:auto}
     table{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px;min-width:600px}
     th,td{padding:6px 8px;border-bottom:1px solid #333;vertical-align:middle}
     tr:hover{background:#1a223a}
-
     .imgwrap{width:96px;height:96px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0a1222;border-radius:8px}
     .imgwrap img{max-width:100%;max-height:100%}
-
-    .badge{
-      padding:2px 6px;border-radius:4px;font-size:12px;font-weight:bold;
-      white-space:nowrap;line-height:1;display:inline-block
-    }
+    .badge{padding:2px 6px;border-radius:4px;font-size:12px;font-weight:bold;white-space:nowrap;line-height:1;display:inline-block}
     .recv{background:#37d399;color:#0b291a}
     .send{background:#ff7a7a;color:#2b0b0b}
     th.dir,td.dir{width:64px;white-space:nowrap}
 
-    /* まとめ表示（スマホ時だけ表示） */
+    /* スマホ用まとめ表示 */
     th.meta, td.meta{display:none}
     .meta{font-size:12px;color:#cbd3f0;line-height:1.5}
 
-    /* スマホ最適化 */
     @media(max-width:600px){
       body{font-size:13px}
       table{font-size:12px;min-width:0}
       th,td{padding:6px}
-
-      /* 3列を隠して meta を表示 */
-      td.asset,th.asset,
-      td.qty,th.qty,
-      td.partner,th.partner {display:none}
+      td.asset,th.asset,td.qty,th.qty,td.partner,th.partner {display:none}
       th.meta, td.meta{display:table-cell}
-
       td.time{white-space:normal}
       .imgwrap{max-width:25vw;max-height:25vw}
+      .brand-text{font-size:22px}
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>モナカード 送受信ビューア（JST + 画像）</h1>
-    <input id="addr" type="text" style="width:320px" />
-    <button id="loadBtn">更新</button>
+    <!-- ブランドロゴ -->
+    <div class="brand">
+      <img src="monamieru_cat_icon.png" alt="もなみえ～る アイコン">
+      <div>
+        <div class="brand-text">もなみえ～る</div>
+        <div class="brand-sub">Monacard Viewer</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <input id="addr" type="text" style="width:320px" placeholder="Monaparty アドレスを入力" />
+      <button id="loadBtn">更新</button>
+      <a href="#" id="disclaimerToggle" class="disclaimer-link">免責事項</a>
+    </div>
+    <div id="disclaimerText" class="disclaimer-text">
+      本ツールは MPChain および Monacard の公開APIを利用して取引情報を閲覧用に表示するものです。<br>
+      ウォレット機能を備えるものではなく、送金や資産管理など実際の仮想通貨利用の判断には使用しないでください。<br>
+      表示内容の正確性・完全性・最新性を保証するものではなく、参考情報としてご利用ください。<br>
+      本ツールの利用により生じたいかなる損害についても、作者は責任を負いません。
+    </div>
   </header>
 
   <main>
@@ -66,7 +106,7 @@
             <th class="asset">アセット</th>
             <th class="qty">数量</th>
             <th class="partner">相手</th>
-            <th class="meta">詳細</th><!-- スマホ時のみ表示 -->
+            <th class="meta">詳細</th>
           </tr>
         </thead>
         <tbody id="tbody">
@@ -80,13 +120,14 @@
 const TBL = document.getElementById('tbody');
 const ADDR = document.getElementById('addr');
 const BTN  = document.getElementById('loadBtn');
+const disclaimerToggle = document.getElementById("disclaimerToggle");
+const disclaimerText   = document.getElementById("disclaimerText");
 
 function fmtJST(ts){
   const d=new Date(ts*1000);
   return d.toLocaleString("ja-JP",{timeZone:"Asia/Tokyo"})+" JST";
 }
 function cleanAsset(row){return row.asset_longname||row.asset;}
-
 function placeholder(asset){
   return `data:image/svg+xml;utf8,${encodeURIComponent(
     `<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'>
@@ -103,7 +144,6 @@ async function fetchSends(addr){
   const j = await r.json();
   return (j && j.data) ? j.data : [];
 }
-
 async function fetchCardDetails(assets){
   if(!assets.length) return {};
   const url=`https://card.mona.jp/api/card_detail.php?assets=${encodeURIComponent(assets.join(','))}`;
@@ -121,7 +161,6 @@ async function fetchCardDetails(assets){
 function partnerLink(addr){
   return addr ? `<a href="https://mpchain.info/address/${addr}" target="_blank" rel="noopener">${addr}</a>` : "-";
 }
-
 function render(rows,imgmap,addr){
   TBL.innerHTML="";
   if(!rows.length){TBL.innerHTML="<tr><td colspan=7>データなし</td></tr>";return;}
@@ -134,7 +173,6 @@ function render(rows,imgmap,addr){
     if(dst===addr){dir="RECEIVE";partner=src;}
     else if(src===addr){dir="SEND";partner=dst;}
     else{dir="OTHER";partner="";}
-
     const tr=document.createElement("tr");
     tr.innerHTML=`
       <td><div class="imgwrap"><img src="${imgmap[asset]||placeholder(asset)}" alt="${asset}"></div></td>
@@ -167,24 +205,26 @@ async function load(addr){
   }
 }
 
-// ページ読み込み時：前回入力を欄に表示するが自動ロードはしない
+// 初期化
 window.onload = () => {
   const saved = localStorage.getItem("monacard_address");
-  if (saved) {
-    ADDR.value = saved;
-  }
+  if (saved) ADDR.value = saved;
   TBL.innerHTML="<tr><td colspan=7>アドレスを入力して「更新」を押してください。</td></tr>";
 };
 
-// 更新ボタンクリック時
+// 更新ボタン
 BTN.onclick = () => {
   const addr = ADDR.value.trim();
-  if (addr) {
-    localStorage.setItem("monacard_address", addr); // 記憶
-    load(addr);
-  } else {
-    TBL.innerHTML="<tr><td colspan=7>アドレスが空です。</td></tr>";
-  }
+  if (addr) { localStorage.setItem("monacard_address", addr); load(addr); }
+  else { TBL.innerHTML="<tr><td colspan=7>アドレスが空です。</td></tr>"; }
+};
+
+// 免責リンク
+disclaimerToggle.onclick = (e) => {
+  e.preventDefault();
+  disclaimerText.style.display =
+    (disclaimerText.style.display === "" || disclaimerText.style.display === "none")
+    ? "block" : "none";
 };
 </script>
 </body>

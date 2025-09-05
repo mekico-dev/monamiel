@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>モナカード 送受信ビューア（JST + 画像）</title>
+  <style>
+    body{background:#0b1020;color:#e5ecff;font-family:sans-serif;margin:0}
+    header{padding:12px;background:#131a2a;position:sticky;top:0}
+    h1{margin:0;font-size:18px}
+    input{padding:6px;border-radius:6px;border:1px solid #555}
+    button{padding:6px 10px;border-radius:6px;background:#1c253b;color:white;border:1px solid #555;cursor:pointer}
+    table{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px}
+    th,td{padding:6px 8px;border-bottom:1px solid #333}
+    tr:hover{background:#1a223a}
+    .imgwrap{width:96px;height:96px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0a1222;border-radius:8px}
+    .imgwrap img{max-width:100%;max-height:100%}
+    .badge{padding:2px 6px;border-radius:4px;font-size:12px;font-weight:bold}
+    .recv{background:#37d399;color:#0b291a}
+    .send{background:#ff7a7a;color:#2b0b0b}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>モナカード  送受信ビューア（JST + 画像）</h1>
+    <input id="addr" type="text" style="width:320px" />
+    <button id="loadBtn">更新</button>
+  </header>
+
+  <main>
+    <table>
+      <thead>
+        <tr>
+          <th>画像</th><th>日時(JST)</th><th>方向</th><th>アセット</th><th>数量</th><th>相手</th>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <tr><td colspan="6">取得中...</td></tr>
+      </tbody>
+    </table>
+  </main>
+
+<script>
+const DEFAULT_ADDRESS = "MHYiC4WArHmLW9ct1X3D8Htx2RoBY5rdbJ";
+const TBL = document.getElementById('tbody');
+const ADDR = document.getElementById('addr');
+const BTN  = document.getElementById('loadBtn');
+
+function fmtJST(ts){
+  const d=new Date(ts*1000);
+  return d.toLocaleString("ja-JP",{timeZone:"Asia/Tokyo"})+" JST";
+}
+function cleanAsset(row){return row.asset_longname||row.asset;}
+
+function placeholder(asset){
+  return `data:image/svg+xml;utf8,${encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'>
+      <rect width='100%' height='100%' fill='#0a1222'/>
+      <text x='4' y='34' fill='#ccc' font-size='10'>${asset}</text>
+    </svg>`
+  )}`;
+}
+
+async function fetchSends(addr){
+  const url=`https://mpchain.info/api/sends/${encodeURIComponent(addr)}/1/20`;
+  const r=await fetch(url); if(!r.ok) throw new Error(r.status);
+  return (await r.json()).data||[];
+}
+
+async function fetchCardDetails(assets){
+  if(!assets.length) return {};
+  const url=`https://card.mona.jp/api/card_detail.php?assets=${encodeURIComponent(assets.join(','))}`;
+  const r=await fetch(url); if(!r.ok) return {};
+  const j=await r.json(); const det=j.details||j;
+  const map={};
+  for(const d of det){
+    const name=d.asset_longname||d.asset;
+    let img=d.imgur_url|| (d.cid?`https://ipfs.io/ipfs/${d.cid}`:null);
+    if(img) map[name]=img;
+  }
+  return map;
+}
+
+function render(rows,imgmap,addr){
+  TBL.innerHTML="";
+  if(!rows.length){TBL.innerHTML="<tr><td colspan=6>データなし</td></tr>";return;}
+  for(const tx of rows.sort((a,b)=>b.timestamp-a.timestamp)){
+    const ts=fmtJST(tx.timestamp);
+    const asset=cleanAsset(tx);
+    const qty=tx.quantity;
+    const src=tx.source,dst=tx.destination;
+    let dir,partner;
+    if(dst===addr){dir="RECEIVE";partner=src;}
+    else if(src===addr){dir="SEND";partner=dst;}
+    else{dir="OTHER";partner="";}
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td><div class="imgwrap"><img src="${imgmap[asset]||placeholder(asset)}"></div></td>
+      <td>${ts}</td>
+      <td>${dir==="RECEIVE"?"<span class='badge recv'>受取</span>":dir==="SEND"?"<span class='badge send'>送信</span>":"OTHER"}</td>
+      <td><a href="https://mpchain.info/asset/${encodeURIComponent(asset)}" target="_blank">${asset}</a></td>
+      <td>${qty}</td>
+      <td>${partner?`<a href="https://mpchain.info/address/${partner}" target="_blank">${partner}</a>`:"-"}</td>`;
+    TBL.appendChild(tr);
+  }
+}
+
+async function load(addr){
+  TBL.innerHTML="<tr><td colspan=6>取得中...</td></tr>";
+  try{
+    const rows=await fetchSends(addr);
+    const assets=[...new Set(rows.map(cleanAsset).filter(Boolean))];
+    const map=await fetchCardDetails(assets);
+    render(rows,map,addr);
+  }catch(e){
+    TBL.innerHTML=`<tr><td colspan=6>エラー: ${e}</td></tr>`;
+  }
+}
+
+ADDR.value=DEFAULT_ADDRESS;
+BTN.onclick=()=>load(ADDR.value.trim());
+window.onload=()=>load(DEFAULT_ADDRESS);
+</script>
+</body>
+</html>

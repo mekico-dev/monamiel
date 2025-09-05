@@ -43,10 +43,7 @@
       td.partner,th.partner {display:none}
       th.meta, td.meta{display:table-cell}
 
-      /* 日時カラムの折返し許可（縦を詰めたい場合はnowrap外す） */
       td.time{white-space:normal}
-
-      /* 画像が画面を圧迫しすぎないように縮小可能に */
       .imgwrap{max-width:25vw;max-height:25vw}
     }
   </style>
@@ -73,14 +70,13 @@
           </tr>
         </thead>
         <tbody id="tbody">
-          <tr><td colspan="7">取得中...</td></tr>
+          <tr><td colspan="7">アドレスを入力して「更新」を押してください。</td></tr>
         </tbody>
       </table>
     </div>
   </main>
 
 <script>
-const DEFAULT_ADDRESS = "MHYiC4WArHmLW9ct1X3D8Htx2RoBY5rdbJ";
 const TBL = document.getElementById('tbody');
 const ADDR = document.getElementById('addr');
 const BTN  = document.getElementById('loadBtn');
@@ -171,9 +167,25 @@ async function load(addr){
   }
 }
 
-ADDR.value=DEFAULT_ADDRESS;
-BTN.onclick=()=>load(ADDR.value.trim());
-window.onload=()=>load(DEFAULT_ADDRESS);
+// ページ読み込み時：前回入力を欄に表示するが自動ロードはしない
+window.onload = () => {
+  const saved = localStorage.getItem("monacard_address");
+  if (saved) {
+    ADDR.value = saved;
+  }
+  TBL.innerHTML="<tr><td colspan=7>アドレスを入力して「更新」を押してください。</td></tr>";
+};
+
+// 更新ボタンクリック時
+BTN.onclick = () => {
+  const addr = ADDR.value.trim();
+  if (addr) {
+    localStorage.setItem("monacard_address", addr); // 記憶
+    load(addr);
+  } else {
+    TBL.innerHTML="<tr><td colspan=7>アドレスが空です。</td></tr>";
+  }
+};
 </script>
 </body>
 </html>

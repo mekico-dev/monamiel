@@ -79,16 +79,20 @@
       flex-wrap: wrap; /* モバイル対応 */
     }
 
-    .brand-pr {
-      font-size: 14px;
-      font-weight: bold;
-      color: #ffb84d;
-      background: rgba(255, 255, 255, 0.08);
-      padding: 4px 8px;
-      border-radius: 6px;
-      margin-left: 10px;
-      white-space: nowrap;
-    }
+.brand-pr {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffb84d;
+  text-decoration: none;
+  margin-left: 12px;
+  background: rgba(255,255,255,0.08);
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: filter 0.2s;
+}
+.brand-pr:hover {
+  filter: brightness(1.3);
+}
 
 
   </style>
@@ -102,7 +106,10 @@
         <div class="brand-text">もなみえ～る</div>
         <div class="brand-sub">Monacard Viewer</div>
       </div>
-      <div class="brand-pr">[PR] 11/3 (コアタイム10～17時) モナカード交換会開催中！</div>
+      <a class="brand-pr" href="https://note.com/x_matsuno/n/n515d1adb7d57"
+        target="_blank" rel="noopener">
+            <!-- [PR] 12月は、モナカード２０２５マイベストアワード ←クリックしてkimidoriさんのnoteをみよう♪ -->
+      </a>
     </div>
     
 

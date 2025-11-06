@@ -80,18 +80,29 @@
     }
 
 .brand-pr {
-  font-size: 14px;
-  font-weight: 700;
-  color: #ffb84d;
-  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
   margin-left: 12px;
-  background: rgba(255,255,255,0.08);
-  padding: 4px 8px;
-  border-radius: 6px;
-  transition: filter 0.2s;
+  line-height: 1.3;
 }
-.brand-pr:hover {
-  filter: brightness(1.3);
+
+.brand-pr a {
+  color: #ffb84d;            /* オレンジ基調 */
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.brand-pr a:hover {
+  color: #ffd68a;            /* ホバーで少し明るく */
+  text-decoration: underline;
+}
+
+.brand-pr a:visited {
+  color: #ffb84d;            /* 訪問後も同じオレンジを維持 */
+}
+
+.brand-pr-note {
+  color: #e5ecff;            /* 白文字（補足テキスト） */
 }
 
 
@@ -106,11 +117,12 @@
         <div class="brand-text">もなみえ～る</div>
         <div class="brand-sub">Monacard Viewer</div>
       </div>
-                  <!--
-      <a class="brand-pr" href="https://note.com/x_matsuno/n/n515d1adb7d57"
-        target="_blank" rel="noopener">
-        [PR] 12月は、モナカード２０２５マイベストアワード ←クリックしてkimidoriさんのnoteをみよう♪
-      </a> -->
+      <span class="brand-pr">
+        <a href="https://note.com/x_matsuno/n/n515d1adb7d57" target="_blank" rel="noopener">
+          [PR] 12月は、モナカード２０２５マイベストアワード
+        </a>
+        <span class="brand-pr-note"> ← クリックしてkimidoriさんのnoteをみよう♪</span>
+      </span>
     </div>
     
 

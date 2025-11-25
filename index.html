@@ -221,7 +221,13 @@ function render(rows,imgmap,addr){
     else{dir="OTHER";partner="";}
     const tr=document.createElement("tr");
     tr.innerHTML=`
-      <td><div class="imgwrap"><img src="${imgmap[asset]||placeholder(asset)}" alt="${asset}"></div></td>
+      <td>
+        <div class="imgwrap">
+          <a href="https://card.mona.jp/explorer/card_detail?asset=${encodeURIComponent(asset)}" target="_blank" rel="noopener">
+            <img src="${imgmap[asset] || placeholder(asset)}" alt="${asset}">
+          </a>
+        </div>
+      </td>
       <td class="time">${ts}</td>
       <td class="dir">${
         dir==="RECEIVE" ? "<span class='badge recv'>受取</span>" :

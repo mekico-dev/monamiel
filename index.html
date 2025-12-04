@@ -1,372 +1,283 @@
-<!DOCTYPE html>
+
+
+<!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <title>ルーレット！「シールとかもらえ～る」</title>
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <!-- PWA 用 -->
-  <meta name="theme-color" content="#f5f5f5" />
-  <link rel="manifest" href="manifest.webmanifest" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <!-- iOS のホーム画面アイコン（あとで作る） -->
-  <link rel="apple-touch-icon" href="icon-192.png" />
-
+  <title>もなみえ～る</title>
   <style>
-    /* --- 全体レイアウト --- */
-    body {
-      font-family: system-ui, sans-serif;
-      background: #f5f5f5;       /* 外側はシンプルに */
-      margin: 0;
-      padding: 16px;
-      display: flex;
-      justify-content: center;
-    }
+    body{background:#0b1020;color:#e5ecff;font-family:sans-serif;margin:0}
+    header{padding:12px 16px;background:#131a2a;position:sticky;top:0;z-index:10}
 
-    .app {
-      max-width: 540px;
-      width: 100%;
-      box-sizing: border-box;
-
-      /* ▼ カード部分だけに背景画像を適用 */
-      background-image: url('bg.png');   /* ← ここを自分のファイル名に */
-      background-size: cover;
-      background-position: center;
-
-      padding: 16px 16px 24px;
-      border-radius: 16px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    /* ブランド（アイコン＋テキスト） */
+    .brand{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .brand img{height:56px;width:auto;border-radius:12px}
+    .brand-text{
+      font-family:
+        "Hiragino Maru Gothic ProN",
+        "Yu Gothic UI",
+        "Yu Gothic",
+        "Meiryo",
+        "Noto Sans JP",
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+      font-weight:700;
+      font-size:26px;
+      line-height:1;
+      background:linear-gradient(90deg,#ff86d1,#9a8bff,#67d8ff);
+      -webkit-background-clip:text;
+      background-clip:text;
+      -webkit-text-fill-color:transparent;
+      color:#e5ecff;
+      white-space:nowrap;
     }
+    .brand-sub{font-size:11px;color:#a6b0cf;letter-spacing:.12em;margin-top:2px}
 
-    /* 内側の要素は読みやすいように淡いパネルの上に載せる */
-    .inner {
-      background: rgba(255, 255, 255, 0.88);
-      border-radius: 16px;
-      padding: 12px 12px 18px;
-    }
+    input{padding:6px;border-radius:6px;border:1px solid #555;background:#0b1020;color:#e5ecff}
+    button{padding:6px 10px;border-radius:6px;background:#1c253b;color:#e5ecff;border:1px solid #555;cursor:pointer}
 
-    h1 {
-      font-size: 20px;
-      margin: 0 0 4px;
-      text-align: center;
-    }
-    .subtitle {
-      font-size: 12px;
-      text-align: center;
-      color: #777;
-      margin-bottom: 12px;
-    }
+    .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 
-    .controls {
-      display: flex;
-      justify-content: center;
-      margin: 8px 0 16px;
-    }
+    /* 免責 */
+    .disclaimer-link{font-size:12px;color:#6ea8ff;cursor:pointer;text-decoration:underline}
+    .disclaimer-text{display:none;font-size:12px;color:#999;line-height:1.5;margin-top:6px}
 
-    button {
-      padding: 10px 24px;
-      border-radius: 999px;
-      border: none;
-      font-size: 14px;
-      cursor: pointer;
-      background: #1976d2;
-      color: #fff;
-      font-weight: 600;
-      transition: transform 0.05s ease, box-shadow 0.05s ease, opacity 0.2s;
-      box-shadow: 0 4px 10px rgba(25,118,210,0.3);
-    }
+    /* テーブル */
+    .tablewrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px;min-width:600px}
+    th,td{padding:6px 8px;border-bottom:1px solid #333;vertical-align:middle}
+    tr:hover{background:#1a223a}
+    .imgwrap{width:96px;height:96px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0a1222;border-radius:8px}
+    .imgwrap img{max-width:100%;max-height:100%}
+    .badge{padding:2px 6px;border-radius:4px;font-size:12px;font-weight:bold;white-space:nowrap;line-height:1;display:inline-block}
+    .recv{background:#37d399;color:#0b291a}
+    .send{background:#ff7a7a;color:#2b0b0b}
+    th.dir,td.dir{width:64px;white-space:nowrap}
 
-    button:disabled {
-      opacity: 0.5;
-      cursor: default;
-      box-shadow: none;
-    }
+    /* スマホ用まとめ表示 */
+    th.meta, td.meta{display:none}
+    .meta{font-size:12px;color:#cbd3f0;line-height:1.5}
 
-    button:active:not(:disabled) {
-      transform: translateY(1px);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+    @media(max-width:600px){
+      body{font-size:13px}
+      table{font-size:12px;min-width:0}
+      th,td{padding:6px}
+      td.asset,th.asset,td.qty,th.qty,td.partner,th.partner {display:none}
+      th.meta, td.meta{display:table-cell}
+      td.time{white-space:normal}
+      .imgwrap{max-width:25vw;max-height:25vw}
+      .brand-text{font-size:22px}
     }
-
-    .wheel-wrapper {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      max-width: 360px;
-      margin: 0 auto;
-    }
-
-    canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    .pointer {
-      position: absolute;
-      top: -8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 14px solid transparent;
-      border-right: 14px solid transparent;
-      border-bottom: 24px solid #e53935;
-      filter: drop-shadow(0 3px 4px rgba(0,0,0,0.3));
-      z-index: 2;
-    }
-
-    .result {
-      text-align: center;
-      margin-top: 12px;
-      min-height: 24px;
-      font-size: 16px;
-      font-weight: 600;
-    }
-    .result span {
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: #fff3cd;
-      border: 1px solid #ffe08a;
-    }
-
-    .prize-list {
-      margin-top: 12px;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 8px;
-    }
-
-    .prize-card {
-      border-radius: 12px;
-      padding: 6px;
-      border: 1px solid #ddd;
+    .brand {
       display: flex;
       align-items: center;
-      gap: 6px;
-      background: #fafafa;
-      transition: transform 0.1s, box-shadow 0.1s, border-color 0.1s;
+      gap: 10px;
+      margin-bottom: 8px;
+      flex-wrap: wrap; /* モバイル対応 */
     }
 
-    .prize-card img {
-      width: 52px;
-      height: 52px;
-      object-fit: cover;
-      border-radius: 10px;
-      background: #fff;
-    }
+.brand-pr {
+  font-size: 13px;
+  font-weight: 600;
+  margin-left: 12px;
+  line-height: 1.3;
+}
 
-    .prize-card .name {
-      font-size: 13px;
-    }
+.brand-pr a {
+  color: #ffb84d;            /* オレンジ基調 */
+  text-decoration: none;
+  transition: color 0.2s;
+}
 
-    .prize-card.selected {
-      border-color: #ffb300;
-      box-shadow: 0 0 0 2px rgba(255,179,0,0.4);
-      transform: translateY(-2px);
-      background: #fffdf5;
-    }
+.brand-pr a:hover {
+  color: #ffd68a;            /* ホバーで少し明るく */
+  text-decoration: underline;
+}
 
-    .footer-note {
-      margin-top: 10px;
-      font-size: 11px;
-      color: #666;
-      text-align: right;
-    }
+.brand-pr a:visited {
+  color: #ffb84d;            /* 訪問後も同じオレンジを維持 */
+}
 
-    /* --- スマホ向けレイアウト調整 --- */
-    @media (max-width: 480px) {
-      body {
-        padding: 8px;
-      }
-      .app {
-        padding: 10px;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.06);
-      }
-      .inner {
-        padding: 10px 10px 14px;
-        border-radius: 12px;
-      }
-      h1 {
-        font-size: 18px;
-      }
-      .subtitle {
-        font-size: 11px;
-      }
-      button {
-        width: 100%;       /* 押しやすいように全幅ボタンに */
-      }
-      .result {
-        font-size: 14px;
-      }
-      .prize-list {
-        grid-template-columns: 1fr;  /* シール一覧を1列に */
-      }
-      .prize-card img {
-        width: 44px;
-        height: 44px;
-      }
-    }
+.brand-pr-note {
+  color: #e5ecff;            /* 白文字（補足テキスト） */
+}
+
+
   </style>
 </head>
 <body>
-  <div class="app">
-    <div class="inner">
-      <h1>ルーレット！「シールとかもらえ～る」</h1>
-      <div class="subtitle">当たったキャラのシールをプレゼント！</div>
-
-      <div class="controls">
-        <button id="spinBtn">まわす！</button>
+  <header>
+    <!-- ブランドロゴ -->
+    <div class="brand">
+      <img src="monamieru_cat_icon.png" alt="もなみえ～る アイコン">
+      <div>
+        <div class="brand-text">もなみえ～る</div>
+        <div class="brand-sub">Monacard Viewer</div>
       </div>
-
-      <div class="wheel-wrapper">
-        <div class="pointer"></div>
-        <canvas id="wheelCanvas" width="400" height="400"></canvas>
-      </div>
-
-      <div class="result" id="result"></div>
-      <div class="prize-list" id="prizeList"></div>
-
-      <div class="footer-note">created by💛@ShinMekicoWorks</div>
+      <span class="brand-pr">
+        <a href="https://note.com/x_matsuno/n/n515d1adb7d57" target="_blank" rel="noopener">
+          [PR] 12月は、モナカード２０２５マイベストアワード
+        </a>
+        <span class="brand-pr"> ♪clickしてkimidoriさんのnoteをみよう♪</span>
+      </span>
     </div>
-  </div>
+    
 
-  <script>
-    /* --- シール設定（画像ファイル名を合わせてください） --- */
-    const prizes = [
-      { name: '神話の案内人 ミスミ',   imageSrc: 'flower.png' },
-      { name: 'ニット帽の ニコ', imageSrc: 'hatgirl.png' },
-      { name: 'ブルーベリーな ニコ', imageSrc: 'purple.png' },
-      { name: 'ニコのキーホルダー', imageSrc: 'keyholder.png' }
-    ];
 
-    const canvas = document.getElementById('wheelCanvas');
-    const ctx = canvas.getContext('2d');
-    const radius = canvas.width / 2;
-    const spinBtn = document.getElementById('spinBtn');
-    const resultEl = document.getElementById('result');
-    const prizeListEl = document.getElementById('prizeList');
-    const pointerAngle = -Math.PI / 2;
-    let spinning = false;
 
-    function drawWheel(rotation) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const sliceAngle = (Math.PI * 2) / prizes.length;
+    <div class="row">
+      <input id="addr" type="text" style="width:320px" placeholder="Monaparty アドレスを入力" />
+      <button id="loadBtn">更新</button>
+      <a href="#" id="disclaimerToggle" class="disclaimer-link">免責事項</a>
+    </div>
+    <div id="disclaimerText" class="disclaimer-text">
+      本ツールは MPChain および Monacard の公開APIを利用して取引情報を閲覧用に表示するものです。<br>
+      ウォレット機能を備えるものではなく、送金や資産管理など実際の仮想通貨利用の判断には使用しないでください。<br>
+      表示内容の正確性・完全性・最新性を保証するものではなく、参考情報としてご利用ください。<br>
+      本ツールの利用により生じたいかなる損害についても、作者は責任を負いません。
+    </div>
+  </header>
 
-      for (let i = 0; i < prizes.length; i++) {
-        const start = rotation + i * sliceAngle;
-        const end = start + sliceAngle;
+  <main>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th>画像</th>
+            <th>日時(JST)</th>
+            <th class="dir">方向</th>
+            <th class="asset">アセット</th>
+            <th class="qty">数量</th>
+            <th class="partner">相手</th>
+            <th class="meta">詳細</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="7">アドレスを入力して「更新」を押してください。</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
 
-        ctx.beginPath();
-        ctx.moveTo(radius, radius);
-        ctx.arc(radius, radius, radius - 4, start, end);
-        ctx.closePath();
+<script>
+const TBL = document.getElementById('tbody');
+const ADDR = document.getElementById('addr');
+const BTN  = document.getElementById('loadBtn');
+const disclaimerToggle = document.getElementById("disclaimerToggle");
+const disclaimerText   = document.getElementById("disclaimerText");
 
-        const hue = (i * 360 / prizes.length) % 360;
-        ctx.fillStyle = `hsl(${hue}, 40%, 80%)`;
-        ctx.fill();
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 2;
-        ctx.stroke();
+function fmtJST(ts){
+  const d=new Date(ts*1000);
+  return d.toLocaleString("ja-JP",{timeZone:"Asia/Tokyo"})+" JST";
+}
+function cleanAsset(row){return row.asset_longname||row.asset;}
+function placeholder(asset){
+  return `data:image/svg+xml;utf8,${encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'>
+      <rect width='100%' height='100%' fill='#0a1222'/>
+      <text x='4' y='20' fill='#8aa0d6' font-size='9'>NOT MONACARD</text>
+      <text x='4' y='36' fill='#cbd3f0' font-size='10'>${asset}</text>
+    </svg>`
+  )}`;
+}
 
-        ctx.save();
-        ctx.translate(radius, radius);
-        ctx.rotate(start + sliceAngle / 2);
-        ctx.textAlign = 'right';
-        ctx.fillStyle = '#333';
-        ctx.font = '16px system-ui';
-        ctx.fillText(prizes[i].name, radius - 16, 5);
-        ctx.restore();
-      }
+async function fetchSends(addr){
+  const url=`https://mpchain.info/api/sends/${encodeURIComponent(addr)}/1/100`;
+  const r=await fetch(url); if(!r.ok) throw new Error(r.status);
+  const j = await r.json();
+  return (j && j.data) ? j.data : [];
+}
+async function fetchCardDetails(assets){
+  if(!assets.length) return {};
+  const url=`https://card.mona.jp/api/card_detail.php?assets=${encodeURIComponent(assets.join(','))}`;
+  const r=await fetch(url); if(!r.ok) return {};
+  const j=await r.json(); const det=j.details||j;
+  const map={};
+  for(const d of det){
+    const name=d.asset_longname||d.asset;
+    let img=d.imgur_url|| (d.cid?`https://ipfs.io/ipfs/${d.cid}`:null);
+    if(img) map[name]=img;
+  }
+  return map;
+}
 
-      // 中央の白い円
-      ctx.beginPath();
-      ctx.arc(radius, radius, 40, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffffff';
-      ctx.fill();
-      ctx.strokeStyle = '#ccc';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
+function partnerLink(addr){
+  return addr ? `<a href="https://mpchain.info/address/${addr}" target="_blank" rel="noopener">${addr}</a>` : "-";
+}
+function render(rows,imgmap,addr){
+  TBL.innerHTML="";
+  if(!rows.length){TBL.innerHTML="<tr><td colspan=7>データなし</td></tr>";return;}
+  for(const tx of rows.sort((a,b)=>b.timestamp-a.timestamp)){
+    const ts=fmtJST(tx.timestamp);
+    const asset=cleanAsset(tx);
+    const qty=tx.quantity;
+    const src=tx.source,dst=tx.destination;
+    let dir,partner;
+    if(dst===addr){dir="RECEIVE";partner=src;}
+    else if(src===addr){dir="SEND";partner=dst;}
+    else{dir="OTHER";partner="";}
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>
+        <div class="imgwrap">
+          <a href="https://card.mona.jp/explorer/card_detail?asset=${encodeURIComponent(asset)}" target="_blank" rel="noopener">
+            <img src="${imgmap[asset] || placeholder(asset)}" alt="${asset}">
+          </a>
+        </div>
+      </td>
+      <td class="time">${ts}</td>
+      <td class="dir">${
+        dir==="RECEIVE" ? "<span class='badge recv'>受取</span>" :
+        dir==="SEND"    ? "<span class='badge send'>送信</span>" : "OTHER"
+      }</td>
+      <td class="asset"><a href="https://mpchain.info/asset/${encodeURIComponent(asset)}" target="_blank" rel="noopener">${asset}</a></td>
+      <td class="qty">${qty}</td>
+      <td class="partner">${partner ? partnerLink(partner) : "-"}</td>
+      <td class="meta">
+        <div>アセット: <a href="https://mpchain.info/asset/${encodeURIComponent(asset)}" target="_blank" rel="noopener">${asset}</a></div>
+        <div>数量: ${qty}</div>
+        <div>相手: ${partner ? partnerLink(partner) : "-"}</div>
+      </td>`;
+    TBL.appendChild(tr);
+  }
+}
 
-    function renderPrizeList(selectedIndex = null) {
-      prizeListEl.innerHTML = '';
-      prizes.forEach((p, i) => {
-        const card = document.createElement('div');
-        card.className = 'prize-card';
-        if (i === selectedIndex) card.classList.add('selected');
+async function load(addr){
+  TBL.innerHTML="<tr><td colspan=7>取得中...</td></tr>";
+  try{
+    const rows=await fetchSends(addr);
+    const assets=[...new Set(rows.map(cleanAsset).filter(Boolean))];
+    const map=await fetchCardDetails(assets);
+    render(rows,map,addr);
+  }catch(e){
+    TBL.innerHTML=`<tr><td colspan=7>エラー: ${e}</td></tr>`;
+  }
+}
 
-        const img = document.createElement('img');
-        img.src = p.imageSrc;
-        img.alt = p.name;
+// 初期化
+window.onload = () => {
+  const saved = localStorage.getItem("monacard_address");
+  if (saved) ADDR.value = saved;
+  TBL.innerHTML="<tr><td colspan=7>アドレスを入力して「更新」を押してください。</td></tr>";
+};
 
-        const nameDiv = document.createElement('div');
-        nameDiv.className = 'name';
-        nameDiv.textContent = p.name;
+// 更新ボタン
+BTN.onclick = () => {
+  const addr = ADDR.value.trim();
+  if (addr) { localStorage.setItem("monacard_address", addr); load(addr); }
+  else { TBL.innerHTML="<tr><td colspan=7>アドレスが空です。</td></tr>"; }
+};
 
-        card.appendChild(img);
-        card.appendChild(nameDiv);
-        prizeListEl.appendChild(card);
-      });
-    }
-
-    function spin() {
-      if (spinning) return;
-      spinning = true;
-      spinBtn.disabled = true;
-      resultEl.textContent = '';
-      renderPrizeList(null);
-
-      const sliceAngle = (Math.PI * 2) / prizes.length;
-      const targetRotation =
-        (5 + Math.random() * 3) * Math.PI * 2 + Math.random() * Math.PI * 2;
-      const duration = 4000;
-      const startTime = performance.now();
-
-      function easeOut(t) {
-        return 1 - Math.pow(1 - t, 3);
-      }
-
-      function tick(now) {
-        const t = Math.min((now - startTime) / duration, 1);
-        const rot = targetRotation * easeOut(t);
-        drawWheel(rot);
-
-        if (t < 1) {
-          requestAnimationFrame(tick);
-        } else {
-          const finalR = targetRotation % (Math.PI * 2);
-          let rel = pointerAngle - finalR;
-          while (rel < 0) rel += Math.PI * 2;
-          const index = Math.floor(rel / sliceAngle);
-
-          const selected = prizes[index];
-          resultEl.innerHTML = `結果: <span>${selected.name}</span>`;
-          renderPrizeList(index);
-
-          spinning = false;
-          spinBtn.disabled = false;
-        }
-      }
-
-      requestAnimationFrame(tick);
-    }
-
-    spinBtn.addEventListener('click', spin);
-
-    // 初期表示
-    drawWheel(0);
-    renderPrizeList(null);
-
-    // ▼ PWA: Service Worker 登録
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(err => {
-          console.log('SW registration failed', err);
-        });
-      });
-    }
-  </script>
+// 免責リンク
+disclaimerToggle.onclick = (e) => {
+  e.preventDefault();
+  disclaimerText.style.display =
+    (disclaimerText.style.display === "" || disclaimerText.style.display === "none")
+    ? "block" : "none";
+};
+</script>
 </body>
 </html>

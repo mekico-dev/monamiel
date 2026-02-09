@@ -1,715 +1,324 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <title>ルーレット！「シールとかもらえ～る」</title>
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <!-- PWA 用 -->
-  <meta name="theme-color" content="#f5f5f5" />
-  <link rel="manifest" href="manifest.webmanifest" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <!-- iOS のホーム画面アイコン（あとで作る） -->
-  <link rel="apple-touch-icon" href="icon-192.png" />
-
+  <title>もなみえ～る</title>
   <style>
-    /* --- 全体レイアウト --- */
-    body {
-      font-family: system-ui, sans-serif;
-      background: #f5f5f5;       /* 外側はシンプルに */
-      margin: 0;
-      padding: 16px;
-      display: flex;
-      justify-content: center;
-      color: #8B4513;
+    body{background:#0b1020;color:#e5ecff;font-family:sans-serif;margin:0}
+    header{padding:12px 16px;background:#131a2a;position:sticky;top:0;z-index:10}
+
+    /* ブランド(アイコン＋テキスト) */
+    .brand{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .brand img{height:56px;width:auto;border-radius:12px}
+    .brand-text{
+      font-family:
+        "Hiragino Maru Gothic ProN",
+        "Yu Gothic UI",
+        "Yu Gothic",
+        "Meiryo",
+        "Noto Sans JP",
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+      font-weight:700;
+      font-size:26px;
+      line-height:1;
+      background:linear-gradient(90deg,#ff86d1,#9a8bff,#67d8ff);
+      -webkit-background-clip:text;
+      background-clip:text;
+      -webkit-text-fill-color:transparent;
+      color:#e5ecff;
+      white-space:nowrap;
     }
+    .brand-sub{font-size:11px;color:#a6b0cf;letter-spacing:.12em;margin-top:2px}
 
-    .app {
-      max-width: 540px;
-      width: 100%;
-      box-sizing: border-box;
-      position: relative;
+    input{padding:6px;border-radius:6px;border:1px solid #555;background:#0b1020;color:#e5ecff}
+    button{padding:6px 10px;border-radius:6px;background:#1c253b;color:#e5ecff;border:1px solid #555;cursor:pointer}
 
-      /* ▼ カード部分だけに背景画像を適用 */
-      background-image: url('bg.png');   /* ← ここを自分のファイル名に */
-      background-size: cover;
-      background-position: center;
+    .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 
-      padding: 16px 16px 24px;
-      border-radius: 16px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-    }
+    /* 免責 */
+    .disclaimer-link{font-size:12px;color:#6ea8ff;cursor:pointer;text-decoration:underline}
+    .disclaimer-text{display:none;font-size:12px;color:#999;line-height:1.5;margin-top:6px}
 
-    /* 背景全体の白い星キラキラ */
-    .app::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: 
-        radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.5) 3px, transparent 6px),
-        radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.4) 2px, transparent 5px),
-        radial-gradient(circle at 40% 60%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.5) 3px, transparent 6px),
-        radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.3) 2px, transparent 5px),
-        radial-gradient(circle at 25% 85%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.6) 3px, transparent 6px),
-        radial-gradient(circle at 90% 50%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.4) 2px, transparent 5px),
-        radial-gradient(circle at 55% 25%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.5) 3px, transparent 6px),
-        radial-gradient(circle at 10% 45%, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.3) 2px, transparent 5px),
-        radial-gradient(circle at 75% 35%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.5) 3px, transparent 6px),
-        radial-gradient(circle at 30% 70%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.4) 2px, transparent 5px),
-        radial-gradient(circle at 95% 75%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.5) 3px, transparent 6px),
-        radial-gradient(circle at 50% 90%, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.3) 2px, transparent 5px),
-        radial-gradient(circle at 65% 10%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.6) 3px, transparent 6px),
-        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.4) 2px, transparent 5px),
-        radial-gradient(circle at 80% 65%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.5) 3px, transparent 6px),
-        radial-gradient(circle at 45% 15%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.4) 2px, transparent 5px),
-        radial-gradient(circle at 60% 55%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.5) 3px, transparent 6px),
-        radial-gradient(circle at 12% 65%, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.3) 2px, transparent 5px),
-        radial-gradient(circle at 88% 30%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.6) 3px, transparent 6px),
-        radial-gradient(circle at 35% 40%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.4) 2px, transparent 5px),
-        radial-gradient(circle at 78% 92%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.5) 3px, transparent 6px),
-        radial-gradient(circle at 5% 10%, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.3) 2px, transparent 5px),
-        radial-gradient(circle at 48% 78%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.6) 3px, transparent 6px),
-        radial-gradient(circle at 92% 88%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.4) 2px, transparent 5px),
-        radial-gradient(circle at 22% 52%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.5) 3px, transparent 6px),
-        radial-gradient(circle at 68% 42%, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.3) 2px, transparent 5px),
-        radial-gradient(circle at 38% 8%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.6) 3px, transparent 6px),
-        radial-gradient(circle at 82% 58%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.4) 2px, transparent 5px),
-        radial-gradient(circle at 52% 48%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.5) 3px, transparent 6px),
-        radial-gradient(circle at 18% 95%, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.3) 2px, transparent 5px);
-      border-radius: 16px;
-      pointer-events: none;
-      animation: starTwinkle 0.5s ease-in-out infinite;
-      z-index: 1;
-      filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.8));
-    }
-
-    @keyframes starTwinkle {
-      0%, 100% { opacity: 0.7; }
-      50% { opacity: 1; }
-    }
-
-    /* 内側の要素は読みやすいように淡いパネルの上に載せる */
-    .inner {
-      background:transparent;
-      border-radius: 16px;
-      padding: 12px 12px 18px;
-      position: relative;
-      z-index: 2;
-    }
-
-    h1 {
-      font-size: 20px;
-      margin: 0 0 4px;
-      text-align: center;
-      position: relative;
-    }
+    /* テーブル */
+    .tablewrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px;min-width:700px}
+    th,td{padding:6px 8px;border-bottom:1px solid #333;vertical-align:middle}
+    tr:hover{background:#1a223a}
+    .imgwrap{width:96px;height:96px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0a1222;border-radius:8px}
+    .imgwrap img{max-width:100%;max-height:100%}
+    .badge{padding:2px 6px;border-radius:4px;font-size:12px;font-weight:bold;white-space:nowrap;line-height:1;display:inline-block}
+    .recv{background:#37d399;color:#0b291a}
+    .send{background:#ff7a7a;color:#2b0b0b}
+    th.dir,td.dir{width:64px;white-space:nowrap}
     
-    .reset-btn {
-      padding: 8px 12px;
-      font-size: 18px;
-      min-width: auto;
-      background: linear-gradient(135deg, 
-        rgba(255, 182, 193, 0.7) 0%,
-        rgba(173, 216, 230, 0.7) 50%,
-        rgba(255, 255, 176, 0.7) 100%);
-      backdrop-filter: blur(10px);
-      border: 2px solid rgba(255, 182, 193, 0.8);
-      color: #8B4513;
-      animation: none;
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-    .subtitle {
-      font-size: 12px;
-      text-align: center;
-      color: #777;
-      margin-bottom: 12px;
-    }
+    /* メモ列 */
+    .memo{font-size:12px;color:#cbd3f0;max-width:200px;word-wrap:break-word}
+    .memo-empty{color:#666;font-style:italic}
 
-    .controls {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 8px 0 16px;
-    }
+    /* スマホ用まとめ表示 */
+    th.meta, td.meta{display:none}
+    .meta{font-size:12px;color:#cbd3f0;line-height:1.5}
 
-    .reset-btn {
-      padding: 14px;
-      font-size: 20px;
-      min-width: auto;
-      width: 50px;
-      height: 50px;
+    @media(max-width:600px){
+      body{font-size:13px}
+      table{font-size:12px;min-width:0}
+      th,td{padding:6px}
+      td.asset,th.asset,td.qty,th.qty,td.partner,th.partner,td.memo-pc,th.memo-pc {display:none}
+      th.meta, td.meta{display:table-cell}
+      td.time{white-space:normal}
+      .imgwrap{max-width:25vw;max-height:25vw}
+      .brand-text{font-size:22px}
+    }
+    .brand {
       display: flex;
       align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, 
-        rgba(255, 182, 193, 0.7) 0%,
-        rgba(173, 216, 230, 0.7) 50%,
-        rgba(255, 255, 176, 0.7) 100%);
-      backdrop-filter: blur(10px);
-      border: 2px solid rgba(255, 182, 193, 0.8);
-      color: #8B4513;
-      animation: none;
-      position: fixed;
-      right: 20px;
-      top: 20px;
-      z-index: 100;
+      gap: 10px;
+      margin-bottom: 8px;
+      flex-wrap: wrap; /* モバイル対応 */
     }
 
-    .reset-btn:hover:not(:disabled) {
-      background: linear-gradient(135deg, 
-        rgba(255, 182, 193, 0.85) 0%,
-        rgba(173, 216, 230, 0.85) 50%,
-        rgba(255, 255, 176, 0.85) 100%);
-    }
-
-    button {
-      padding: 16px 48px;
-      border-radius: 12px;
-      border: 2px solid rgba(255, 182, 193, 0.8);
-      font-size: 18px;
-      cursor: pointer;
-      background: linear-gradient(135deg, 
-        rgba(255, 182, 193, 0.7) 0%,
-        rgba(173, 216, 230, 0.7) 50%,
-        rgba(255, 255, 176, 0.7) 100%);
-      backdrop-filter: blur(10px);
-      color: #8B4513;
-      font-weight: 700;
-      transition: transform 0.05s ease, box-shadow 0.05s ease, opacity 0.2s;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
-      animation: buttonBlink 1.5s ease-in-out infinite;
-    }
-
-    @keyframes buttonBlink {
-      0%, 100% {
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-        transform: scale(1);
-      }
-      50% {
-        box-shadow: 0 0 25px rgba(255, 182, 193, 0.8),
-                    0 0 35px rgba(173, 216, 230, 0.6);
-        transform: scale(1.05);
-      }
-    }
-
-    button:disabled {
-      opacity: 0.5;
-      cursor: default;
-      box-shadow: none;
-      animation: none;
-    }
-
-    button:active:not(:disabled) {
-      transform: translateY(1px);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.25);
-    }
-
-    .wheel-wrapper {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      max-width: 360px;
-      max-height: 70vh;   /* ← これを追加 */
-      margin: 0 auto;
-    }
-
-    canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    .pointer {
-      position: absolute;
-      top: 50%;           /* ← 上端から真ん中に */
-      left: auto;         /* ← 左からの指定を解除 */
-      right: -8px;        /* ← 右端から少し出す */
-      transform: translateY(-50%) rotate(90deg);  /* ← 中央揃え + 90度回転 */
-      width: 0;
-      height: 0;
-      border-left: 14px solid transparent;
-      border-right: 14px solid transparent;
-      border-top: 24px solid #e53935;
-      filter: drop-shadow(0 3px 4px rgba(0,0,0,0.3));
-      z-index: 2;
-    }
-
-    .result {
-      text-align: center;
-      margin-top: 12px;
-      min-height: 24px;
-      font-size: 16px;
-      font-weight: 600;
-    }
-    .result span {
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: #fff3cd;
-      border: 1px solid #ffe08a;
-    }
-
-    .prize-list {
-      margin-top: 12px;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 8px;
-    }
-
-    .prize-card {
-      border-radius: 12px;
-      padding: 6px;
-      border: 1px solid #ddd;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: #fafafa;
-      transition: transform 0.1s, box-shadow 0.1s, border-color 0.1s;
-    }
-
-    .prize-card img {
-      width: 52px;
-      height: 52px;
-      object-fit: cover;
-      border-radius: 10px;
-      background: #fff;
-    }
-
-    .prize-card .name {
+    .brand-pr {
       font-size: 13px;
+      font-weight: 600;
+      margin-left: 12px;
+      line-height: 1.3;
     }
 
-    .prize-card.selected {
-      border-color: #ffb300;
-      box-shadow: 0 0 0 4px rgba(255,179,0,0.4);
-      transform: translateY(-2px);
-      background: #fffdf5;
+    .brand-pr a {
+      color: #ffb84d;            /* オレンジ基調 */
+      text-decoration: none;
+      transition: color 0.2s;
     }
 
-    .footer-note {
-      margin-top: 10px;
-      font-size: 11px;
-      color: #666;
-      text-align: right;
+    .brand-pr a:hover {
+      color: #ffd68a;            /* ホバーで少し明るく */
+      text-decoration: underline;
     }
 
-    /* キラキラパーティクル */
-    .sparkles {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.3s;
+    .brand-pr a:visited {
+      color: #ffb84d;            /* 訪問後も同じオレンジを維持 */
     }
 
-    .sparkles.active {
-      opacity: 1;
-    }
-
-    .sparkle {
-      position: absolute;
-      width: 16px;
-      height: 16px;
-      background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(255, 215, 0, 0.8) 50%, transparent 100%);
-      border-radius: 50%;
-      animation: sparkleFloat 2s ease-in-out infinite;
-      box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-    }
-
-    @keyframes sparkleFloat {
-      0%, 100% {
-        transform: translateY(0) scale(1);
-        opacity: 0;
-      }
-      10% {
-        opacity: 1;
-      }
-      50% {
-        transform: translateY(-30px) scale(1.2);
-        opacity: 1;
-      }
-      90% {
-        opacity: 1;
-      }
-    }
-
-    /* 当選カード用の赤いハートキラキラ */
-    .prize-card .heart-container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      overflow: hidden;
-      border-radius: 12px;
-    }
-
-    .heart-sparkle {
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      animation: heartFloat 2s ease-in-out infinite;
-      z-index: 10;
-    }
-
-    /* ハート形状 */
-    .heart-sparkle::before {
-      content: '♥';
-      position: absolute;
-      top: 0;
-      left: 0;
-      font-size: 20px;
-      color: rgba(255, 80, 120, 0.8);
-      text-shadow: 0 0 10px rgba(255, 80, 120, 0.6),
-                   0 0 20px rgba(255, 150, 180, 0.4);
-      animation: heartBeat 1s ease-in-out infinite;
-    }
-
-    @keyframes heartFloat {
-      0% {
-        transform: translate(0, 0) rotate(-10deg) scale(0.9);
-        opacity: 0.7;
-      }
-      25% {
-        transform: translate(5px, -10px) rotate(5deg) scale(1.1);
-        opacity: 0.9;
-      }
-      50% {
-        transform: translate(-3px, -18px) rotate(15deg) scale(1.2);
-        opacity: 1;
-      }
-      75% {
-        transform: translate(8px, -12px) rotate(-5deg) scale(1.05);
-        opacity: 0.9;
-      }
-      100% {
-        transform: translate(0, 0) rotate(-10deg) scale(0.9);
-        opacity: 0.7;
-      }
-    }
-
-    @keyframes heartBeat {
-      0%, 100% {
-        transform: scale(1);
-      }
-      50% {
-        transform: scale(1.2);
-      }
-    }
-
-    .prize-card {
-      position: relative;
-    }
-
-    /* --- スマホ向けレイアウト調整 --- */
-    @media (max-width: 480px) {
-      body {
-        padding: 8px;
-      }
-      .app {
-        padding: 10px;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.06);
-      }
-      .inner {
-        padding: 10px 10px 14px;
-        border-radius: 12px;
-      }
-      h1 {
-        font-size: 18px;
-      }
-      .subtitle {
-        font-size: 11px;
-      }
-      button {
-        width: 100%;
-        padding: 18px 48px;
-        font-size: 20px;
-        font-weight: 700;
-      }
-      .reset-btn {
-        width: 50px !important;
-        min-width: 50px !important;
-        padding: 12px !important;
-        font-size: 20px;
-      }
-      .result {
-        font-size: 14px;
-      }
-      .prize-list {
-        grid-template-columns: repeat(2, minmax(0,1fr));  /* スマホも2列 */
-      }
-      .prize-card img {
-        width: 44px;
-        height: 44px;
-      }
+    .brand-pr-note {
+      color: #e5ecff;            /* 白文字(補足テキスト) */
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <div class="inner">
-      <h1>ルーレット！「シールとかもらえ～る」</h1>
-
-      <div class="controls">
-        <button id="spinBtn">まわす！</button>
+  <header>
+    <!-- ブランドロゴ -->
+    <div class="brand">
+      <img src="monamieru_cat_icon.png" alt="もなみえ～る アイコン">
+      <div>
+        <div class="brand-text">もなみえ～る</div>
+        <div class="brand-sub">Monacard Viewer</div>
       </div>
-
-      <div class="wheel-wrapper">
-        <div class="pointer"></div>
-        <canvas id="wheelCanvas" width="400" height="400"></canvas>
-        <div class="sparkles" id="sparkles"></div>
-      </div>
-
-      <div class="result" id="result"></div>
-      <div class="prize-list" id="prizeList"></div>
-
-      <div class="footer-note">created by💛@ShinMekicoWorks</div>
     </div>
-  </div>
 
-  <script>
-    /* --- シール設定（画像ファイル名を合わせてください） --- */
-    const prizes = [
-      { name: '神話の案内人 ミスミ',   imageSrc: 'flower.png' },
-      { name: 'ニット帽の ニコ', imageSrc: 'hatgirl.png' },
-      { name: 'ブルーベリーな ニコ', imageSrc: 'purple.png' },
-      { name: 'ニコのキーホルダー', imageSrc: 'keyholder.png' },
-      { name: 'メキコのシール', imageSrc: 'mekicoA.png' },  // ← 追加
-      { name: 'メキコパンの原画', imageSrc: 'mekicoB.png' }   // ← 追加
-    ];
+    <div class="row">
+      <input id="addr" type="text" style="width:320px" placeholder="Monaparty アドレスを入力" />
+      <button id="loadBtn">更新</button>
+      <a href="#" id="disclaimerToggle" class="disclaimer-link">免責事項をお読みください</a>
+    </div>
+    <div id="disclaimerText" class="disclaimer-text">
+      本ツールは MPChain および Monacard の公開APIを利用して取引情報を閲覧用に表示するものです。<br>
+      ウォレット機能を備えるものではなく、送金や資産管理など実際の仮想通貨利用の判断には使用しないでください。<br>
+      表示内容の正確性・完全性・最新性を保証するものではなく、参考情報としてご利用ください。<br>
+      また、本ツールは各APIサーバーになるべく負荷をかけないように、最近のやり取り10件だけを表示します <br>
+      本ツールの利用により生じたいかなる損害についても、作者は責任を負いません。
+    </div>
+  </header>
 
-    const canvas = document.getElementById('wheelCanvas');
-    const ctx = canvas.getContext('2d');
-    const radius = canvas.width / 2;
-    const spinBtn = document.getElementById('spinBtn');
-    const resultEl = document.getElementById('result');
-    const prizeListEl = document.getElementById('prizeList');
-    const sparklesEl = document.getElementById('sparkles');
-    const pointerAngle = 0;  // 15時の位置（0度 = 3時）
-    let spinning = false;
+  <main>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th>画像</th>
+            <th>日時(JST)</th>
+            <th class="dir">方向</th>
+            <th class="asset">アセット</th>
+            <th class="qty">数量</th>
+            <th class="partner">相手</th>
+            <th class="memo-pc">メモ</th>
+            <th class="meta">詳細</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="8">アドレスを入力して「更新」を押してください。</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
 
-    // キラキラパーティクルを生成
-    function createSparkles() {
-      sparklesEl.innerHTML = '';
-      const wheelWrapper = document.querySelector('.wheel-wrapper');
-      const rect = wheelWrapper.getBoundingClientRect();
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
+<script>
+const TBL = document.getElementById('tbody');
+const ADDR = document.getElementById('addr');
+const BTN  = document.getElementById('loadBtn');
+const disclaimerToggle = document.getElementById("disclaimerToggle");
+const disclaimerText   = document.getElementById("disclaimerText");
+
+function fmtJST(ts){
+  const d=new Date(ts*1000);
+  return d.toLocaleString("ja-JP",{timeZone:"Asia/Tokyo"})+" JST";
+}
+function cleanAsset(row){return row.asset_longname||row.asset;}
+function placeholder(asset){
+  return `data:image/svg+xml;utf8,${encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'>
+      <rect width='100%' height='100%' fill='#0a1222'/>
+      <text x='4' y='20' fill='#8aa0d6' font-size='9'>NOT MONACARD</text>
+      <text x='4' y='36' fill='#cbd3f0' font-size='10'>${asset}</text>
+    </svg>`
+  )}`;
+}
+
+async function fetchSends(addr){
+  const url=`https://mpchain.info/api/sends/${encodeURIComponent(addr)}/1/1`;
+  const r=await fetch(url); if(!r.ok) throw new Error(r.status);
+  const j = await r.json();
+  return (j && j.data) ? j.data : [];
+}
+
+async function fetchTxDetail(txHash, retries=2){
+  const url=`https://mpchain.info/api/tx/${encodeURIComponent(txHash)}`;
+  
+  for(let i=0; i<=retries; i++){
+    try{
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒タイムアウト
       
-      for (let i = 0; i < 20; i++) {
-        const sparkle = document.createElement('div');
-        sparkle.className = 'sparkle';
-        
-        const angle = Math.random() * Math.PI * 2;
-        const distance = 80 + Math.random() * 80;
-        const x = centerX + Math.cos(angle) * distance;
-        const y = centerY + Math.sin(angle) * distance;
-        
-        sparkle.style.left = x + 'px';
-        sparkle.style.top = y + 'px';
-        sparkle.style.animationDelay = (Math.random() * 2) + 's';
-        sparkle.style.animationDuration = (1.5 + Math.random()) + 's';
-        
-        sparklesEl.appendChild(sparkle);
-      }
-    }
-
-    function showSparkles() {
-      createSparkles();
-      sparklesEl.classList.add('active');
-    }
-
-    function hideSparkles() {
-      sparklesEl.classList.remove('active');
-    }
-
-    // 当選した景品カードにハートキラキラを追加
-    function addHeartsToCard(cardElement) {
-      // 既存のハートをクリア
-      const existingContainer = cardElement.querySelector('.heart-container');
-      if (existingContainer) {
-        existingContainer.remove();
-      }
-
-      const container = document.createElement('div');
-      container.className = 'heart-container';
+      const r = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
       
-      // カード右側（画像の右）に5個のハートを配置
-      // 縦方向に均等に配置して重ならないようにする
-      const positions = [
-        { x: 65, y: 15 },
-        { x: 80, y: 30 },
-        { x: 70, y: 50 },
-        { x: 85, y: 70 },
-        { x: 75, y: 85 }
-      ];
-      
-      for (let i = 0; i < 5; i++) {
-        const heart = document.createElement('div');
-        heart.className = 'heart-sparkle';
-        
-        // 固定位置に少しランダム性を加える
-        const x = positions[i].x + (Math.random() * 10 - 5);
-        const y = positions[i].y + (Math.random() * 8 - 4);
-        
-        heart.style.left = x + '%';
-        heart.style.top = y + '%';
-        
-        // 各ハートごとに異なる動きをランダムに設定
-        const delay = Math.random() * 2;
-        const duration = 1.5 + Math.random() * 1.5; // 1.5-3秒
-        const direction = Math.random() > 0.5 ? 'normal' : 'reverse';
-        
-        heart.style.animationDelay = delay + 's';
-        heart.style.animationDuration = duration + 's';
-        heart.style.animationDirection = direction;
-        
-        // ランダムに初期回転を設定
-        heart.style.transform = `rotate(${Math.random() * 360}deg)`;
-        
-        container.appendChild(heart);
-      }
-      
-      cardElement.appendChild(container);
-    }
-
-    function drawWheel(rotation) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const sliceAngle = (Math.PI * 2) / prizes.length;
-
-      for (let i = 0; i < prizes.length; i++) {
-        const start = rotation + i * sliceAngle;
-        const end = start + sliceAngle;
-
-        ctx.beginPath();
-        ctx.moveTo(radius, radius);
-        ctx.arc(radius, radius, radius - 4, start, end);
-        ctx.closePath();
-
-        const hue = (i * 360 / prizes.length) % 360;
-        ctx.fillStyle = `hsl(${hue}, 40%, 80%)`;
-        ctx.fill();
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        ctx.save();
-        ctx.translate(radius, radius);
-        ctx.rotate(start + sliceAngle / 2);
-        ctx.textAlign = 'right';
-        ctx.fillStyle = '#8B4513';
-        ctx.font = '16px system-ui';
-        ctx.fillText(prizes[i].name, radius - 16, 5);
-        ctx.restore();
-      }
-
-      // 中央の白い円
-      ctx.beginPath();
-      ctx.arc(radius, radius, 40, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffffff';
-      ctx.fill();
-      ctx.strokeStyle = '#ccc';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-
-    function renderPrizeList(selectedIndex = null) {
-      prizeListEl.innerHTML = '';
-      prizes.forEach((p, i) => {
-        const card = document.createElement('div');
-        card.className = 'prize-card';
-        if (i === selectedIndex) card.classList.add('selected');
-
-        const img = document.createElement('img');
-        img.src = p.imageSrc;
-        img.alt = p.name;
-
-        const nameDiv = document.createElement('div');
-        nameDiv.className = 'name';
-        nameDiv.textContent = p.name;
-
-        card.appendChild(img);
-        card.appendChild(nameDiv);
-        prizeListEl.appendChild(card);
-
-        // 当選カードにハートを追加
-        if (i === selectedIndex) {
-          addHeartsToCard(card);
+      if(!r.ok) {
+        if(i < retries) {
+          await new Promise(resolve => setTimeout(resolve, 1000)); // 1秒待ってリトライ
+          continue;
         }
-      });
-    }
-
-    function spin() {
-      if (spinning) return;
-      spinning = true;
-      spinBtn.disabled = true;
-      resultEl.textContent = '';
-      renderPrizeList(null);
-      showSparkles();
-
-      const sliceAngle = (Math.PI * 2) / prizes.length;
-      const targetRotation =
-        (5 + Math.random() * 3) * Math.PI * 2 + Math.random() * Math.PI * 2;
-      const duration = 4000;
-      const startTime = performance.now();
-
-      function easeOut(t) {
-        return 1 - Math.pow(1 - t, 3);
+        return null;
       }
-
-      function tick(now) {
-        const t = Math.min((now - startTime) / duration, 1);
-        const rot = targetRotation * easeOut(t);
-        drawWheel(rot);
-
-        if (t < 1) {
-          requestAnimationFrame(tick);
-        } else {
-          hideSparkles();
-          const finalR = targetRotation % (Math.PI * 2);
-          // ポインターは0度（3時）なので
-          let rel = -finalR;  // マイナスにして計算
-          while (rel < 0) rel += Math.PI * 2;
-          const index = Math.floor(rel / sliceAngle) % prizes.length;
-
-          const selected = prizes[index];
-          resultEl.innerHTML = `結果: <span>${selected.name}</span>`;
-          renderPrizeList(index);
-
-          spinning = false;
-          spinBtn.disabled = false;
-        }
+      
+      const j = await r.json();
+      return j.memo || null;
+    }catch(e){
+      if(i < retries) {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // 1秒待ってリトライ
+        continue;
       }
-
-      requestAnimationFrame(tick);
+      return null;
     }
+  }
+  return null;
+}
 
-    spinBtn.addEventListener('click', spin);
+async function fetchCardDetails(assets){
+  if(!assets.length) return {};
+  const url=`https://card.mona.jp/api/card_detail.php?assets=${encodeURIComponent(assets.join(','))}`;
+  const r=await fetch(url); if(!r.ok) return {};
+  const j=await r.json(); const det=j.details||j;
+  const map={};
+  for(const d of det){
+    const name=d.asset_longname||d.asset;
+    let img=d.imgur_url|| (d.cid?`https://ipfs.io/ipfs/${d.cid}`:null);
+    if(img) map[name]=img;
+  }
+  return map;
+}
 
-    // 初期表示
-    drawWheel(0);
-    renderPrizeList(null);
+function partnerLink(addr){
+  return addr ? `<a href="https://mpchain.info/address/${addr}" target="_blank" rel="noopener">${addr}</a>` : "-";
+}
 
-    // ▼ PWA: Service Worker 登録
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(err => {
-          console.log('SW registration failed', err);
-        });
-      });
-    }
-  </script>
+function render(rows,imgmap,memomap,addr){
+  TBL.innerHTML="";
+  if(!rows.length){TBL.innerHTML="<tr><td colspan=8>データなし</td></tr>";return;}
+  for(const tx of rows.sort((a,b)=>b.timestamp-a.timestamp)){
+    const ts=fmtJST(tx.timestamp);
+    const asset=cleanAsset(tx);
+    const qty=tx.quantity;
+    const src=tx.source,dst=tx.destination;
+    const memo=memomap[tx.tx_hash]||"";
+    
+    let dir,partner;
+    if(dst===addr){dir="RECEIVE";partner=src;}
+    else if(src===addr){dir="SEND";partner=dst;}
+    else{dir="OTHER";partner="";}
+    
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>
+        <div class="imgwrap">
+          <a href="https://card.mona.jp/explorer/card_detail?asset=${encodeURIComponent(asset)}" target="_blank" rel="noopener">
+            <img src="${imgmap[asset] || placeholder(asset)}" alt="${asset}">
+          </a>
+        </div>
+      </td>
+      <td class="time">${ts}</td>
+      <td class="dir">${
+        dir==="RECEIVE" ? "<span class='badge recv'>受取</span>" :
+        dir==="SEND"    ? "<span class='badge send'>送信</span>" : "OTHER"
+      }</td>
+      <td class="asset"><a href="https://mpchain.info/asset/${encodeURIComponent(asset)}" target="_blank" rel="noopener">${asset}</a></td>
+      <td class="qty">${qty}</td>
+      <td class="partner">${partner ? partnerLink(partner) : "-"}</td>
+      <td class="memo-pc memo">${memo ? memo : '<span class="memo-empty">-</span>'}</td>
+      <td class="meta">
+        <div>アセット: <a href="https://mpchain.info/asset/${encodeURIComponent(asset)}" target="_blank" rel="noopener">${asset}</a></div>
+        <div>数量: ${qty}</div>
+        <div>相手: ${partner ? partnerLink(partner) : "-"}</div>
+        <div>メモ: ${memo ? memo : '<span class="memo-empty">なし</span>'}</div>
+      </td>`;
+    TBL.appendChild(tr);
+  }
+}
+
+async function load(addr){
+  TBL.innerHTML="<tr><td colspan=8>取得中...</td></tr>";
+  try{
+    const rows=await fetchSends(addr);
+    
+    // 並列でメモ情報を取得
+    const memoPromises = rows.map(row => fetchTxDetail(row.tx_hash));
+    const memos = await Promise.all(memoPromises);
+    const memomap = {};
+    rows.forEach((row, i) => {
+      if(memos[i]) memomap[row.tx_hash] = memos[i];
+    });
+    
+    const assets=[...new Set(rows.map(cleanAsset).filter(Boolean))];
+    const map=await fetchCardDetails(assets);
+    render(rows,map,memomap,addr);
+  }catch(e){
+    TBL.innerHTML=`<tr><td colspan=8>エラー: ${e}</td></tr>`;
+  }
+}
+
+// 初期化
+window.onload = () => {
+  const saved = localStorage.getItem("monacard_address");
+  if (saved) ADDR.value = saved;
+  TBL.innerHTML="<tr><td colspan=8>アドレスを入力して「更新」を押してください。</td></tr>";
+};
+
+// 更新ボタン
+BTN.onclick = () => {
+  const addr = ADDR.value.trim();
+  if (addr) { localStorage.setItem("monacard_address", addr); load(addr); }
+  else { TBL.innerHTML="<tr><td colspan=8>アドレスが空です。</td></tr>"; }
+};
+
+// 免責リンク
+disclaimerToggle.onclick = (e) => {
+  e.preventDefault();
+  disclaimerText.style.display =
+    (disclaimerText.style.display === "" || disclaimerText.style.display === "none")
+    ? "block" : "none";
+};
+</script>
 </body>
 </html>

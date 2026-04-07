@@ -144,12 +144,10 @@
             <th class="asset">アセット</th>
             <th class="qty">数量</th>
             <th class="partner">相手</th>
-            <th class="memo-pc">メモ</th>
-            <th class="meta">詳細</th>
           </tr>
         </thead>
         <tbody id="tbody">
-          <tr><td colspan="8">アドレスを入力して「更新」を押してください。</td></tr>
+          <tr><td colspan="6">アドレスを入力して「更新」を押してください。</td></tr>
         </tbody>
       </table>
     </div>
@@ -252,7 +250,6 @@ function render(rows,imgmap,memomap,addr){
     const asset=cleanAsset(tx);
     const qty=tx.quantity;
     const src=tx.source,dst=tx.destination;
-    const memo=memomap[tx.tx_hash]||"";
     
     let dir,partner;
     if(dst===addr){dir="RECEIVE";partner=src;}
@@ -276,13 +273,7 @@ function render(rows,imgmap,memomap,addr){
       <td class="asset"><a href="https://mpchain.info/asset/${encodeURIComponent(asset)}" target="_blank" rel="noopener">${asset}</a></td>
       <td class="qty">${qty}</td>
       <td class="partner">${partner ? partnerLink(partner) : "-"}</td>
-      <td class="memo-pc memo">${memo ? memo : '<span class="memo-empty">-</span>'}</td>
-      <td class="meta">
-        <div>アセット: <a href="https://mpchain.info/asset/${encodeURIComponent(asset)}" target="_blank" rel="noopener">${asset}</a></div>
-        <div>数量: ${qty}</div>
-        <div>相手: ${partner ? partnerLink(partner) : "-"}</div>
-        <div>メモ: ${memo ? memo : '<span class="memo-empty">なし</span>'}</div>
-      </td>`;
+      `;
     TBL.appendChild(tr);
   }
 }
@@ -300,7 +291,7 @@ async function load(addr){
     //   if(memos[i]) memomap[row.tx_hash] = memos[i];
     // });
     const memomap = {};
-    
+
     const assets=[...new Set(rows.map(cleanAsset).filter(Boolean))];
     const map=await fetchCardDetails(assets);
     render(rows,map,memomap,addr);

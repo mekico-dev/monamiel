@@ -65,8 +65,10 @@
 
     @media(max-width:600px){
       body{font-size:13px}
-      table{font-size:12px}
+      table{font-size:12px;min-width:0}
       th,td{padding:6px}
+      td.asset,th.asset,td.qty,th.qty,td.partner,th.partner,td.memo-pc,th.memo-pc {display:none}
+      th.meta, td.meta{display:table-cell}
       td.time{white-space:normal}
       .imgwrap{max-width:25vw;max-height:25vw}
       .brand-text{font-size:22px}
@@ -142,6 +144,7 @@
             <th class="asset">アセット</th>
             <th class="qty">数量</th>
             <th class="partner">相手</th>
+            <th class="meta">詳細</th>
           </tr>
         </thead>
         <tbody id="tbody">
@@ -271,7 +274,11 @@ function render(rows,imgmap,memomap,addr){
       <td class="asset"><a href="https://mpchain.info/asset/${encodeURIComponent(asset)}" target="_blank" rel="noopener">${asset}</a></td>
       <td class="qty">${qty}</td>
       <td class="partner">${partner ? partnerLink(partner) : "-"}</td>
-      `;
+      <td class="meta">
+        <div>アセット: <a href="https://mpchain.info/asset/${encodeURIComponent(asset)}" target="_blank" rel="noopener">${asset}</a></div>
+        <div>数量: ${qty}</div>
+        <div>相手: ${partner ? partnerLink(partner) : "-"}</div>
+      </td>`;
     TBL.appendChild(tr);
   }
 }
@@ -313,7 +320,7 @@ window.onload = () => {
 BTN.onclick = () => {
   const addr = ADDR.value.trim();
   if (addr) { localStorage.setItem("monacard_address", addr); load(addr); }
-  else { TBL.innerHTML="<tr><td colspan=8>アドレスが空です。</td></tr>"; }
+  else { TBL.innerHTML="<tr><td colspan=7>アドレスが空です。</td></tr>"; }
 };
 
 // 免責リンク

@@ -292,13 +292,14 @@ async function load(addr){
   try{
     const rows=await fetchSends(addr);
     
-    // 並列でメモ情報を取得
-    const memoPromises = rows.map(row => fetchTxDetail(row.tx_hash));
-    const memos = await Promise.all(memoPromises);
+    // // 並列でメモ情報を取得
+    // const memoPromises = rows.map(row => fetchTxDetail(row.tx_hash));
+    // const memos = await Promise.all(memoPromises);
+    // const memomap = {};
+    // rows.forEach((row, i) => {
+    //   if(memos[i]) memomap[row.tx_hash] = memos[i];
+    // });
     const memomap = {};
-    rows.forEach((row, i) => {
-      if(memos[i]) memomap[row.tx_hash] = memos[i];
-    });
     
     const assets=[...new Set(rows.map(cleanAsset).filter(Boolean))];
     const map=await fetchCardDetails(assets);
